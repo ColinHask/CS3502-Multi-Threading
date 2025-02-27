@@ -14,7 +14,7 @@ class BankAccount{
         ID = i;
     }
 
-    bool withdraw(int amount) {
+    bool tryWithdraw(int amount) {
         if (mtx.try_lock()){
             // critical section
             Balance -= amount;
@@ -31,14 +31,14 @@ class BankAccount{
 
     }
 
-    bool deposit(int amount) {
+    bool tryDeposit(int amount) {
     if (mtx.try_lock()){
         // critical section
         Balance += amount;
         // delay inside critical section to simulate work
         std::this_thread::sleep_for(std::chrono::milliseconds(3000));
         mtx.unlock();
-        std::cout << "                          |   [Account " << ID << "] " << amount << "$ deposit sucessful" << std::endl;
+        std::cout << "                          |   [Account " << ID << "] " << amount << "$ tryDeposit sucessful" << std::endl;
         std::cout << "                          |   [Account " << ID << "]" << " Current Balance: " << Balance << std::endl;
         return true;
     }
@@ -101,10 +101,10 @@ int main() {
                 amt = readInt("Enter Widthdrawal amount: |\n", 2000000000);
 
                 if (acc == 1){
-                    std::thread t1(&BankAccount::withdraw, &acc1, amt);
+                    std::thread t1(&BankAccount::tryWithdraw, &acc1, amt);
                     t1.detach();
                 }else if (acc == 2){
-                    std::thread t1(&BankAccount::withdraw, &acc2, amt);
+                    std::thread t1(&BankAccount::tryWithdraw, &acc2, amt);
                     t1.detach();
                 }else{                                     
                     throw(acc);
@@ -117,10 +117,10 @@ int main() {
                 amt = readInt("Enter Deposit amount:     |\n", 2000000000);
 
                 if (acc == 1){
-                    std::thread t1(&BankAccount::deposit, &acc1, amt);
+                    std::thread t1(&BankAccount::tryDeposit, &acc1, amt);
                     t1.detach();
                 }else if (acc == 2){
-                    std::thread t1(&BankAccount::deposit, &acc2, amt);
+                    std::thread t1(&BankAccount::tryDeposit, &acc2, amt);
                     t1.detach();
                 }else{                                     
                     std::cout << "Invalid entry             |" << std::endl;
